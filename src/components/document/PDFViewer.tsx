@@ -494,7 +494,6 @@ export default function PDFViewer({ pdfFile, onClose }: PDFViewerProps) {
   }
 
   function hexToRgb(hex: string | undefined): RGBColor {
-    // Default to black if hex is invalid
     if (!hex || typeof hex !== "string") {
       return { r: 0, g: 0, b: 0 };
     }
@@ -536,42 +535,36 @@ export default function PDFViewer({ pdfFile, onClose }: PDFViewerProps) {
         res.arrayBuffer()
       );
 
-      // Load the PDF document
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const pages = pdfDoc.getPages();
 
-      // Process annotations by page
       for (const annotation of annotations) {
-        // Get the page (subtract 1 as PDF pages are 0-indexed)
         const pageIndex = annotation.page - 1;
         if (pageIndex < 0 || pageIndex >= pages.length) continue;
 
         const page = pages[pageIndex];
         const { width, height } = page.getSize();
 
-        // Apply different annotation types
         if (annotation.tool === "highlight") {
-          // For highlights, draw a rectangle
           page.drawRectangle({
             x: annotation.startX,
             y:
               height -
               annotation.startY -
-              (annotation.endY - annotation.startY), // Flip Y coordinate
+              (annotation.endY - annotation.startY),
             width: annotation.endX - annotation.startX,
             height: annotation.endY - annotation.startY,
-            color: rgb(1, 1, 0.4), // Yellow with transparency
+            color: rgb(1, 1, 0.4),
             opacity: 0.4,
           });
         } else if (annotation.tool === "rectangle") {
-          // For rectangles, draw the outline
           const color = hexToRgb(annotation.color);
           page.drawRectangle({
             x: annotation.startX,
             y:
               height -
               annotation.startY -
-              (annotation.endY - annotation.startY), // Flip Y coordinate
+              (annotation.endY - annotation.startY),
             width: annotation.endX - annotation.startX,
             height: annotation.endY - annotation.startY,
             borderColor: rgb(color.r / 255, color.g / 255, color.b / 255),
@@ -579,13 +572,12 @@ export default function PDFViewer({ pdfFile, onClose }: PDFViewerProps) {
             opacity: 1,
           });
         } else if (annotation.tool === "text") {
-          // For text annotations
           const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
           const color = hexToRgb(annotation.color);
 
           page.drawText(annotation.text, {
             x: annotation.x,
-            y: height - annotation.y, // Flip Y coordinate
+            y: height - annotation.y,
             size: annotation.fontSize,
             font: font,
             color: rgb(color.r / 255, color.g / 255, color.b / 255),
@@ -594,16 +586,13 @@ export default function PDFViewer({ pdfFile, onClose }: PDFViewerProps) {
           annotation.tool === "pencil" &&
           annotation.points.length > 1
         ) {
-          // For pencil/freehand drawings
           const color = hexToRgb(annotation.color);
 
-          // Convert points to PDF coordinates (flip Y)
           const convertedPoints = annotation.points.map((point) => ({
             x: point.x,
             y: height - point.y,
           }));
 
-          // Draw connected lines between points
           for (let i = 0; i < convertedPoints.length - 1; i++) {
             page.drawLine({
               start: { x: convertedPoints[i].x, y: convertedPoints[i].y },
@@ -615,10 +604,8 @@ export default function PDFViewer({ pdfFile, onClose }: PDFViewerProps) {
         }
       }
 
-      // Save the PDF
       const pdfBytes = await pdfDoc.save();
 
-      // Create a Blob and download
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const downloadUrl = URL.createObjectURL(blob);
 
@@ -629,7 +616,6 @@ export default function PDFViewer({ pdfFile, onClose }: PDFViewerProps) {
       link.click();
       document.body.removeChild(link);
 
-      // Clean up
       URL.revokeObjectURL(downloadUrl);
       toast.success("Annotated PDF downloaded successfully!");
     } catch (error) {
