@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "src/app/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@noteX/components",
+    "utils": "@noteX/lib/utils",
+    "ui": "@noteX/components/ui",
+    "lib": "@noteX/lib",
+    "hooks": "@noteX/hooks"
+  },
+  "iconLibrary": "lucide"
+}
